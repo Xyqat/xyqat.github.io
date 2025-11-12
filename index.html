@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xyqat.io // Developer Portfolio</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Font: VT323 (a great pixel/terminal font) -->
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome CDN (for icons) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        /* --- Custom CSS for the Retro Terminal Look --- */
+        
+        :root {
+            /* Using the exact colors from your design */
+            --neon-green: #00ff00;
+            --neon-cyan: #00f7f7;
+            --bg-color: #080808; /* Very dark background */
+        }
+
+        body {
+            font-family: 'VT323', monospace;
+            background-color: var(--bg-color);
+            color: var(--neon-cyan);
+            /* Set a base font size, Tailwind will scale from here */
+            font-size: 1.25rem; /* ~20px */
+            line-height: 1.5;
+        }
+
+        /* The main container that simulates the CRT screen */
+        .crt-screen {
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden; /* This is key for the overlays */
+        }
+
+        /* CRT Vignette (the dark shadow at the edges) */
+        .crt-screen::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            /* Creates a soft, dark inner shadow */
+            box-shadow: 0 0 120px 60px rgba(0,0,0,0.9) inset;
+            pointer-events: none; /* Allows clicking through it */
+            z-index: 10;
+        }
+
+        /* CRT Scanlines */
+        .crt-screen::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            /* A repeating gradient creates thin, dark horizontal lines */
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.4) 0px,
+                rgba(0, 0, 0, 0.4) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            pointer-events: none; /* Allows clicking through it */
+            z-index: 11;
+            opacity: 0.7; /* Make them subtle */
+        }
+
+        /* We put all content inside a container to ensure it's "under" the overlays */
+        .content-container {
+            position: relative;
+            z-index: 5; /* Sits below the overlays */
+        }
+
+        /* --- Glow Effects --- */
+
+        /* Green glow for the main header and prompt */
+        .header-glow {
+            color: var(--neon-green);
+            /* A subtle black shadow helps text pop before the glow */
+            text-shadow: 0 0 2px #000, 0 0 5px var(--neon-green), 0 0 10px var(--neon-green);
+        }
+
+        .prompt-user-glow {
+            color: var(--neon-green);
+            text-shadow: 0 0 2px #000, 0 0 5px var(--neon-green), 0 0 8px var(--neon-green);
+        }
+
+        /* Cyan glow for UI elements and body text */
+        .text-cyan-glow {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 2px #000, 0 0 5px var(--neon-cyan), 0 0 8px var(--neon-cyan);
+        }
+
+        .header-cyan-glow {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 2px #000, 0 0 6px var(--neon-cyan), 0 0 12px var(--neon-cyan);
+        }
+
+        .text-cyan-body {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 2px var(--neon-cyan);
+        }
+
+        .icon-glow {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 3px var(--neon-cyan), 0 0 6px var(--neon-cyan);
+        }
+
+        .link-glow {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 3px var(--neon-cyan);
+            transition: all 0.2s ease;
+        }
+        .link-glow:hover {
+            color: #fff;
+            background-color: var(--neon-cyan);
+            text-shadow: 0 0 5px #fff, 0 0 10px var(--neon-cyan);
+        }
+
+        /* Green glow for the footer */
+        .footer-glow {
+            color: var(--neon-green);
+            text-shadow: 0 0 3px var(--neon-green);
+        }
+        .footer-glow a {
+            color: var(--neon-green);
+            transition: all 0.2s ease;
+        }
+        .footer-glow a:hover {
+            color: #fff;
+            text-shadow: 0 0 5px #fff, 0 0 10px var(--neon-green);
+        }
+        
+        /* The glowing boxes */
+        .box-glow {
+            border: 2px solid var(--neon-cyan);
+            border-radius: 8px;
+            /* Glow on the outside and a subtle glow on the inside */
+            box-shadow: 0 0 8px var(--neon-cyan), 0 0 12px var(--neon-cyan) inset;
+            background-color: rgba(0, 32, 32, 0.1); /* Faint background for content */
+        }
+        
+        /* Blinking Cursor Animation */
+        .cursor {
+            display: inline-block;
+            width: 12px;
+            /* Adjust height to match font size (text-2xl) */
+            height: 1.8rem; 
+            background-color: var(--neon-cyan);
+            box-shadow: 0 0 5px var(--neon-cyan);
+            animation: blink 1s step-end infinite;
+            margin-left: 3px;
+            vertical-align: bottom;
+        }
+
+        @keyframes blink {
+            /* At 50% of the animation, it's transparent */
+            50% { 
+                background-color: transparent; 
+                box-shadow: none; 
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-900">
+
+    <!-- This div is the main screen container -->
+    <div class="crt-screen">
+        
+        <!-- All content goes inside this container -->
+        <div class="content-container container mx-auto p-4 md:p-8">
+
+            <!-- Header -->
+            <h1 class="text-4xl md:text-5xl font-bold header-glow">
+                &gt;&gt;&gt;&gt; Xyqat.io // Developer Portfolio
+            </h1>
+            
+            <!-- Command Prompt -->
+            <div class="mt-4 text-2xl md:text-3xl">
+                <span class="prompt-user-glow">C:\USERS\XYQAT&gt;</span>
+                <!-- The JavaScript will type into this span -->
+                <span id="command" class="text-cyan-glow"></span>
+                <!-- The blinking cursor -->
+                <span id="cursor" class="cursor"></span>
+            </div>
+            
+            <!-- Main Content Grid -->
+            <!-- It's 1 column on mobile, 3 columns on medium screens and up -->
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+                <!-- Column 1: About Me -->
+                <div class="box-glow p-4">
+                    <h2 class="text-3xl header-cyan-glow">[ABOUT ME]</h2>
+                    <p class="mt-4 text-cyan-body">
+                        Greetings! I'm Xyqat, a full-stack developer specializing in cyber-retro interfaces and robust backend systems. Est. 2077. My passion is blending nostalgic aesthetics with modern, efficient code.
+                    </p>
+                </div>
+                
+                <!-- Column 2: Projects -->
+                <div class="box-glow p-4">
+                    <h2 class="text-3xl header-cyan-glow">[PROJECTS]</h2>
+                    <ul class="mt-4 space-y-2">
+                        <!-- Add your project links here -->
+                        <li><a href="#" class="link-glow p-1">&gt; SPACE INVADERS CLONE</a></li>
+                        <li><a href="#" class="link-glow p-1">&gt; TERMINAL-UI FRAMEWORK</a></li>
+                        <li><a href="#" class="link-glow p-1">&gt; NEON CITY EXPLORER</a></li>
+                        <li><a href="#" class="link-glow p-1">&gt; PROJECT CHIMERA</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Column 3: Skills -->
+                <div class="box-glow p-4">
+                    <h2 class="text-3xl header-cyan-glow">[SKILLS]</h2>
+                    <ul class="mt-4 space-y-3 text-cyan-body">
+                        <!-- Replaced with Font Awesome icons -->
+                        <li class="flex items-center space-x-3">
+                            <i class="fas fa-save fa-fw text-xl icon-glow"></i>
+                            <span>ASSEMBLY</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <i class="fab fa-python fa-fw text-xl icon-glow"></i>
+                            <span>PYTHON</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <i class="fas fa-brain fa-fw text-xl icon-glow"></i>
+                            <span>AI / ML</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <i class="fas fa-laptop-code fa-fw text-xl icon-glow"></i>
+                            <span>CYBERSECURITY</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <footer class="mt-8 text-center footer-glow">
+                <div class="space-x-6 text-3xl">
+                    <!-- Add your social links here -->
+                    <a href="https://github.com/xyqat" target="_blank" rel="noopener noreferrer" aria-label="GitHub Profile">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="#" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Profile">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                </div>
+                <p class="mt-4 text-lg">
+                    &gt; git clone https://github.com/xyqat/portfolio.git
+                </p>
+            </footer>
+            
+        </div> <!-- End .content-container -->
+    </div> <!-- End .crt-screen -->
+
+    <script>
+        // --- Simple Typing Effect JavaScript ---
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const commandEl = document.getElementById('command');
+            const cursorEl = document.getElementById('cursor');
+            // This is the text from your image
+            const textToType = "ls-l PROJECTS/";
+            let index = 0;
+            
+            // Hide cursor while typing
+            cursorEl.style.display = 'none';
+
+            function typeCommand() {
+                if (index < textToType.length) {
+                    commandEl.textContent += textToType.charAt(index);
+                    index++;
+                    // Calls itself after a random, "human-like" delay
+                    setTimeout(typeCommand, Math.random() * 120 + 50);
+                } else {
+                    // Show cursor when typing is done
+                    cursorEl.style.display = 'inline-block';
+                }
+            }
+            
+            // Start typing after a short delay
+            setTimeout(typeCommand, 1000);
+        });
+    </script>
+
+</body>
+</html>
